@@ -1,8 +1,13 @@
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const Footer = () => {
-  const year = new Date().getFullYear();
+  const [year, setYear] = useState(2025);
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
 
   return (
     <footer className="py-12 border-t border-border">

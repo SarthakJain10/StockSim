@@ -13,7 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function UpdatePasswordForm() {
   const [password, setPassword] = useState("");
@@ -24,11 +24,21 @@ export function UpdatePasswordForm() {
   const [success, setSuccess] = useState(false);
 
   const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError("Invalid or expired reset link. Please try again.");
+      }
+    };
+    checkSession();
+  }, [supabase]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
-
+    
     if (password !== repeatPassword) {
       setError("Passwords do not match");
       return;
@@ -43,10 +53,10 @@ export function UpdatePasswordForm() {
 
       setSuccess(true);
 
-      // Optional delay for UX
+      // Redirect to dashboard (or login) after success
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 1500);
+        router.push("/dashboard"); 
+      }, 2000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -63,7 +73,7 @@ export function UpdatePasswordForm() {
             Password updated
           </h2>
           <p className="text-muted-foreground">
-            Your password has been updated successfully.
+            Your password has been updated successfully. Redirecting...
           </p>
         </div>
       ) : (
@@ -89,6 +99,7 @@ export function UpdatePasswordForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 h-12 bg-secondary/50"
+                  disabled={!!error && error.includes("expired")}
                 />
                 <button
                   type="button"
@@ -117,12 +128,13 @@ export function UpdatePasswordForm() {
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
                   className="pl-10 h-12 bg-secondary/50"
+                  disabled={!!error && error.includes("expired")}
                 />
               </div>
             </div>
 
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-sm text-destructive text-center">{error}</p>
             )}
 
             <Button
@@ -130,7 +142,7 @@ export function UpdatePasswordForm() {
               variant="hero"
               size="lg"
               className="w-full"
-              disabled={isLoading}
+              disabled={isLoading || (!!error && error.includes("expired"))}
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

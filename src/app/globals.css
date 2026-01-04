@@ -434,3 +434,51 @@
   color: #9ca3af;
   border-color: #6b7280;
 }
+
+/* Tables */
+.lesson-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.95rem;
+}
+
+.lesson-markdown thead {
+  background-color: #f8fafc;
+}
+
+.dark .lesson-markdown thead {
+  background-color: #1f2937;
+}
+
+.lesson-markdown th,
+.lesson-markdown td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.dark .lesson-markdown th,
+.dark .lesson-markdown td {
+  border-color: #374151;
+}
+
+/* Header cells */
+.lesson-markdown th {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dark .lesson-markdown th {
+  color: #e5e7eb;
+}
+
+/* Zebra striping */
+.lesson-markdown tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.dark .lesson-markdown tbody tr:nth-child(even) {
+  background-color: #111827;
+}

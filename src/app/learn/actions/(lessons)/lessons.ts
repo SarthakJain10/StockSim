@@ -5,9 +5,9 @@ import { cacheLife, cacheTag } from "next/cache";
 
 // Fetch a single lesson with its Markdown content
 export async function getLessonWithContent(lessonId: string) {
-    'use cache'
-    cacheLife('weeks');
-    cacheTag("lessons");
+    // 'use cache'
+    // cacheLife('weeks');
+    // cacheTag("lessons");
 
     const supabase = await createClient();
 

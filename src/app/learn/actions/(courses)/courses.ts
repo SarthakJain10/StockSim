@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/client"
 import { cacheLife, cacheTag } from 'next/cache'
 
 export async function getCourses() {
-    'use cache'
-    cacheLife('days');
-    cacheTag("courses");
+    // 'use cache'
+    // cacheLife('days');
+    // cacheTag("courses");
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -20,9 +20,9 @@ export async function getCourses() {
 }
 
 export async function getCoursesBySlug(slug: string) {
-    'use cache'
-    cacheLife('days');
-    cacheTag("courses");
+    // 'use cache'
+    // cacheLife('days');
+    // cacheTag("courses");
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -36,9 +36,9 @@ export async function getCoursesBySlug(slug: string) {
 }
 
 export async function getCourseLessonCount(courseId: string) {
-    'use cache'
-    cacheLife('days');
-    cacheTag("courses_lesson_count");
+    // 'use cache'
+    // cacheLife('days');
+    // cacheTag("courses_lesson_count");
     const supabase = await createClient();
 
     const { count, error } = await supabase
@@ -55,9 +55,9 @@ export async function getCourseLessonCount(courseId: string) {
 }
 
 export async function getCourseReadTime(courseId: string) {
-    'use cache'
-    cacheLife('days');
-    cacheTag("courses_read_time");
+    // 'use cache'
+    // cacheLife('days');
+    // cacheTag("courses_read_time");
     const supabase = await createClient();
 
     const { data, error } = await supabase

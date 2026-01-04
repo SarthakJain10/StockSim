@@ -24,9 +24,8 @@ export function ForgotPasswordForm({
     setError(null);
 
     try {
-      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth2/update-password`,
+        redirectTo: `${window.location.origin}/auth/update-password`,
       });
       if (error) throw error;
       setSuccess(true);
@@ -101,7 +100,7 @@ export function ForgotPasswordForm({
               ) : (
                 <>
                   Send reset link
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               )}
             </Button>
@@ -109,7 +108,7 @@ export function ForgotPasswordForm({
 
           <div className="mt-6 text-center">
             <Link
-              href="/auth2/login"
+              href="/auth/login"
               className="text-primary hover:underline font-medium"
             >
               Back to login

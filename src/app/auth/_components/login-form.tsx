@@ -1,5 +1,6 @@
 "use client"
 
+import GoogleAuthButton from "@/components/google-auth-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,9 @@ export function LoginForm({
                 <p className="text-muted-foreground text-center mb-8">Sign in to continue your learning</p>
 
                 {/* Handle Google SignUp */}
+                <div className="w-full">
+                    <GoogleAuthButton />
+                </div>
 
                 <div className="flex items-center gap-2 my-6">
                     <div className="h-px bg-border flex-1" />

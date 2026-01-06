@@ -1,63 +1,61 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useToast } from "../hooks/use-toast";
-import { Stock } from "./types";
+import { useTheme } from 'next-themes';
+import TradingViewWidget from "@/components/TradingViewWidget";
 import TradeStats from "./_components/TradeStats";
-import StockTabs from "./_components/StockTabs";
-import TradePanel from "./_components/TradePanel";
+import {
+  HEATMAP_WIDGET_CONFIG,
+  MARKET_DATA_WIDGET_CONFIG,
+  MARKET_OVERVIEW_WIDGET_CONFIG,
+  TOP_STORIES_WIDGET_CONFIG,
+} from "@/data/trading";
 
 export default function TradeClient() {
-  const { toast } = useToast();
+  const { resolvedTheme } = useTheme();
+  const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-  const [quantity, setQuantity] = useState(1);
-  const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
-
-  const handleTrade = () => {
-    if (!selectedStock) return;
-
-    toast({
-      title: "Order Executed 🎉",
-      description: `You ${orderType} ${quantity} shares of ${selectedStock.symbol}`,
-    });
-
-    setQuantity(1);
-    setSelectedStock(null);
-  };
+  const scriptUrl =
+    "https://s3.tradingview.com/external-embedding/embed-widget-";
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-3xl font-bold">
-          Virtual <span className="gradient-text">Trading</span>
-        </h1>
-        <p className="text-muted-foreground">
-          Practice trading with virtual money
-        </p>
-      </div>
-
       <TradeStats />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <StockTabs
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedStock={selectedStock}
-          setSelectedStock={setSelectedStock}
-        />
+      <section className="relative isolate grid w-full grid-cols-1 gap-8 xl:grid-cols-3">
+        <div className="relative h-[600px] overflow-hidden xl:col-span-1">
+          <TradingViewWidget
+            title="Market Overview"
+            scriptUrl={`${scriptUrl}market-overview.js`}
+            config={MARKET_OVERVIEW_WIDGET_CONFIG(theme)} 
+          />
+        </div>
 
-        <TradePanel
-          selectedStock={selectedStock}
-          quantity={quantity}
-          setQuantity={setQuantity}
-          orderType={orderType}
-          setOrderType={setOrderType}
-          onTrade={handleTrade}
-        />
-      </div>
+        <div className="relative h-[600px] overflow-hidden xl:col-span-2">
+          <TradingViewWidget
+            title="Stock Heatmap"
+            scriptUrl={`${scriptUrl}stock-heatmap.js`}
+            config={HEATMAP_WIDGET_CONFIG(theme)} 
+          />
+        </div>
+      </section>
+
+      <section className="relative isolate mt-10 grid w-full grid-cols-1 gap-8 xl:grid-cols-3">
+        <div className="relative h-[600px] overflow-hidden xl:col-span-1">
+          <TradingViewWidget
+            title="Top Stories"
+            scriptUrl={`${scriptUrl}timeline.js`}
+            config={TOP_STORIES_WIDGET_CONFIG(theme)} 
+          />
+        </div>
+
+        <div className="relative h-[600px] overflow-hidden xl:col-span-2">
+          <TradingViewWidget
+            title="Market Quotes"
+            scriptUrl={`${scriptUrl}market-quotes.js`}
+            config={MARKET_DATA_WIDGET_CONFIG(theme)} 
+          />
+        </div>
+      </section>
     </div>
   );
 }

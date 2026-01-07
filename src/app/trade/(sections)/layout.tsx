@@ -1,12 +1,14 @@
 import Footer from '@/components/footer';
 import TradeNavbar from './_components/TradeNavbar';
 import WatchlistSidebar from './_components/WatchlistSidebar';
+import { searchStocks } from '@/lib/finnhub/search';
 
-export default function TradeLayout({
+export default async function TradeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialStocks = await searchStocks();
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navbar */}

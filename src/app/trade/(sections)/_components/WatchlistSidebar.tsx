@@ -11,6 +11,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useStockSearch } from "@/app/hooks/useStockSearch";
+
 
 interface Stock {
   symbol: string;
@@ -44,15 +46,22 @@ const watchlists: Watchlist[] = [
   },
 ];
 
+
 export default function WatchlistSidebar() {
   const [activeId, setActiveId] = useState(1);
-  const [search, setSearch] = useState("");
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    results,
+    loading,
+    isSearchMode,
+    isSearchOpen,
+    setIsSearchOpen,
+    searchInputRef,
+  } = useStockSearch();
 
   const activeWatchlist = watchlists.find(w => w.id === activeId)!;
-
-  const filteredStocks = activeWatchlist.stocks.filter(stock =>
-    stock.symbol.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <aside className="hidden md:flex flex-col w-75 h-screen border-r bg-background">
@@ -61,8 +70,9 @@ export default function WatchlistSidebar() {
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            ref={searchInputRef}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search & add"
             className="pl-8 h-9 text-sm"
           />
@@ -90,61 +100,127 @@ export default function WatchlistSidebar() {
         </button>
       </div>
 
-      {/* Stocks */}
       <ScrollArea className="flex-1">
-        <div className="divide-y">
-          {filteredStocks.map((stock) => {
-            const isUp = stock.change >= 0;
+        {/* Search / Popular */}
+        {isSearchOpen && (
+          <SearchResults
+            results={results}
+            loading={loading}
+            onSelect={() => {
+              setSearchTerm("");
+              setIsSearchOpen(false);
+            }}
+          />
+        )}
 
-            return (
-              <div
-                key={stock.symbol}
-                className="group flex items-center px-3 py-2 hover:bg-muted transition"
-              >
-                {/* Symbol */}
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{stock.symbol}</p>
-                </div>
-
-                {/* Price */}
-                <div className="text-right mr-3">
-                  <p className="text-sm font-medium">
-                    {stock.price.toFixed(2)}
-                  </p>
-                  <p
-                    className={cn(
-                      "text-xs",
-                      isUp ? "text-green-500" : "text-red-500"
-                    )}
-                  >
-                    {isUp ? "+" : ""}
-                    {stock.change.toFixed(2)}%
-                  </p>
-                </div>
-
-                {/* Hover Actions */}
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                  <button className="p-1 rounded hover:bg-background">
-                    <ArrowUpRight className="w-4 h-4" />
-                  </button>
-                  <button className="p-1 rounded hover:bg-background">
-                    <BarChart2 className="w-4 h-4" />
-                  </button>
-                  <button className="p-1 rounded hover:bg-red-500 hover:text-white">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-
-          {filteredStocks.length === 0 && (
-            <p className="text-sm text-muted-foreground p-4 text-center">
-              No instruments found
-            </p>
-          )}
-        </div>
+        {/* Watchlist */}
+        {!isSearchOpen && (
+          <WatchlistStocks watchlist={activeWatchlist} />
+        )}
       </ScrollArea>
+
+
     </aside>
+  );
+}
+
+function WatchlistStocks({ watchlist }: { watchlist: Watchlist }) {
+  if (!watchlist.stocks.length) {
+    return (
+      <p className="text-sm text-muted-foreground p-4 text-center">
+        No stocks in this watchlist
+      </p>
+    );
+  }
+
+  return (
+    <div className="divide-y">
+      {watchlist.stocks.map((stock) => {
+        const isPositive = stock.change >= 0;
+
+        return (
+          <div
+            key={stock.symbol}
+            className="group flex items-center px-3 py-2 hover:bg-muted"
+          >
+            <div className="flex-1">
+              <p className="text-sm font-medium">{stock.symbol}</p>
+              <p className="text-xs text-muted-foreground">
+                NSE · EQ
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-sm font-medium">
+                ₹{stock.price.toFixed(2)}
+              </p>
+              <p
+                className={cn(
+                  "text-xs",
+                  isPositive ? "text-green-600" : "text-red-600"
+                )}
+              >
+                {isPositive ? "+" : ""}
+                {stock.change.toFixed(2)}%
+              </p>
+            </div>
+
+            <div className="ml-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+              <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
+              <BarChart2 className="w-4 h-4 text-muted-foreground" />
+              <Trash2 className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+
+function SearchResults({
+  results,
+  loading,
+  onSelect,
+}: {
+  results: any[];
+  loading: boolean;
+  onSelect: () => void;
+}) {
+  if (loading) {
+    return (
+      <p className="text-sm text-muted-foreground p-4 text-center">
+        Searching…
+      </p>
+    );
+  }
+
+  if (!results.length) {
+    return (
+      <p className="text-sm text-muted-foreground p-4 text-center">
+        No instruments found
+      </p>
+    );
+  }
+
+  return (
+    <div className="divide-y">
+      {results.map((stock) => (
+        <div
+          key={stock.symbol}
+          onClick={onSelect}
+          className="group flex items-center px-3 py-2 hover:bg-muted cursor-pointer"
+        >
+          <div className="flex-1">
+            <p className="text-sm font-medium">{stock.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {stock.symbol} | {stock.exchange } | {stock.type}
+            </p>
+          </div>
+
+          <Plus className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition" />
+        </div>
+      ))}
+    </div>
   );
 }
